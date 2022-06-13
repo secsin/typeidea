@@ -1,0 +1,8 @@
+<ul>
+    {% for comment in comments %}
+        <li><a href="{{ comment.target }}">所在文章</a> | {{ comment.nickname }} :
+        {% autoescape off %}
+            {{ comment.content }}
+        {% endautoescape %}
+    {% endfor %}
+</ul>

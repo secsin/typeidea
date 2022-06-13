@@ -1,5 +1,8 @@
 # django模块
+import markdown
+
 from django.contrib.auth.models import User
+from django.utils.functional import cached_property
 from django.db import models
 
 
@@ -75,12 +78,14 @@ class Post(models.Model):
     content = models.TextField(verbose_name="正文", help_text="正文必须是MarkDown格式")
     status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name="状态")
     category = models.ForeignKey(Category, verbose_name="分类", on_delete=models.CASCADE)
-    tag = models.ManyToManyField(Tag, verbose_name="标签")
+    tag = models.ManyToManyField(Tag, verbose_name="标签", help_text="按住ctrl可多选")
     owner = models.ForeignKey(User, verbose_name="作者", on_delete=models.CASCADE)
     created_time = models.DateTimeField(auto_now_add=True, verbose_name="创建时间")
     # 统计访问量
     pv = models.PositiveIntegerField(default=1)
     uv = models.PositiveIntegerField(default=1)
+    content_html = models.TextField(verbose_name="正文html代码", blank=True, editable=False)
+    is_md = models.BooleanField(default=False, verbose_name="markdown语法")
 
     class Meta:
         verbose_name = verbose_name_plural = "文章"
@@ -120,3 +125,15 @@ class Post(models.Model):
     @classmethod
     def hot_posts(cls):
         return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv').only('id', 'title')
+
+    # sitemap，输出配置好的tags
+    @cached_property
+    def tags(self):
+        return ','.join(self.tag.values_list('name', flat=True))
+
+    def save(self, *args, **kwargs):
+        if self.is_md:
+            self.content_html = markdown.markdown(self.content)
+        else:
+            self.content_html = self.content
+        super().save(*args, **kwargs)
