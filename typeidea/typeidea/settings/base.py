@@ -22,6 +22,7 @@ import os
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+VERSION = '${version}'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
@@ -29,24 +30,21 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = '-b(c3r&3t!d_1d99gfzm6ewxfx=4de+p-lz_nm)t+w_p8w&6c6'
 
-
-ALLOWED_HOSTS = []
-
-
 # Application definition
 
 INSTALLED_APPS = [
+    'dal',
+    'dal_select2',
     'typeidea',
     'blog',
     'config',
     'comment',
     'xadmin',
     'crispy_forms',
-    'dal',
-    'dal_select2',
     'ckeditor',
     'ckeditor_uploader',
     'rest_framework',
+    'captcha',
 
     'django.contrib.admin',
     'django.contrib.auth',
@@ -71,7 +69,7 @@ ROOT_URLCONF = 'typeidea.urls'
 
 THEME = 'bootstrap'
 
-STATIC_ROOT = '/tmp/static'
+# STATIC_ROOT = '/tmp/static'
 
 STATIC_URL = '/static/'
 
@@ -92,7 +90,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'typeidea.wsgi.application'
-
 
 # Password validation
 # https://docs.djangoproject.com/en/2.2/ref/settings/#auth-password-validators
@@ -126,7 +123,9 @@ USE_L10N = True
 
 USE_TZ = True
 
-# xadmin配置标题和页脚
+ALLOWED_HOSTS = ['*']
+
+# xadmin
 XADMIN_TITLE = 'Typeidea管理后台'
 XADMIN_FOOTER_TITLE = 'power by secsin.com'
 
@@ -144,7 +143,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, "media")
 CKEDITOR_UPLOAD_PATH = "article_images"
 DEFAULT_FILE_STORAGE = 'typeidea.storage.WatermarkStorage'
 REST_FRAMEWORK = {
-    'DEFAULT_RENDERER_CLASSES': (  # 默认响应渲染类
+    'DEFAULT_RENDERER_CLASSES': (
         # 'rest_framework.schemas.AutoSchema',
         'rest_framework.renderers.JSONRenderer',
         'rest_framework.renderers.BrowsableAPIRenderer'

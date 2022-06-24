@@ -31,7 +31,7 @@ class WatermarkStorage(FileSystemStorage):
     def watermark_with_text(self, file_obj, text, color, fontfamily=None):
         image = Image.open(file_obj).convert('RGBA')
         draw = ImageDraw.Draw(image)
-        width, height = image.size
+        width, height = image.sizeq
         margin = 10
         if fontfamily:
             font = ImageFont.truetype(fontfamily, int(height / 20))

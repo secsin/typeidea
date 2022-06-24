@@ -1,0 +1,44 @@
+{% extends "./base.html" %}
+{% load comment_block %}
+{% block title %} {{ post.title }} {% endblock %}
+{% block extra_head %}
+    <link rel="stylesheet" href="https://cdn.bootcss.com/highlight.js/9.12.0/styles/googlecode.min.css">
+    <script src="https://cdn.bootcss.com/highlight.js/9.12.0/highlight.min.js"></script>
+    <script>hljs.initHighlightingOnLoad();</script>
+{% endblock %}
+
+{% block main %}
+    {% if post %}
+        <h1 align="center">{{ post.title }}</h1>
+        <ul class="nav justify-content-center">
+            <li class="nav-item">
+                <a class="nav-link disabled">分类：{{ post.category.name }}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="/author/{{ post.owner.id }}"><span
+                        style="color:#212529">作者：</span>{{ post.owner.username }}</a>
+            </li>
+            <li class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-expanded="false">标签</a>
+                <div class="dropdown-menu">
+                    {% for tag in post.tag.all %}
+                        <a href="{% url 'tag-list' tag.id %}" class="dropdown-item">{{ tag.name }}</a>
+                    {% endfor %}
+                </div>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled">创建时间：{{ post.created_time }}</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link disabled">pv/uv：{{ post.pv }}/{{ post.uv }}</a>
+            </li>
+        </ul>
+        <hr/>
+        <p>
+            {% autoescape off %}
+                {{ post.content_html }}
+            {% endautoescape %}
+        </p>
+    {% endif %}
+    {% comment_block request.path %}
+{% endblock %}

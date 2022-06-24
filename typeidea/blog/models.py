@@ -4,6 +4,7 @@ import markdown
 from django.contrib.auth.models import User
 from django.utils.functional import cached_property
 from django.db import models
+from django.core.cache import cache
 
 
 class Category(models.Model):
@@ -76,7 +77,9 @@ class Post(models.Model):
     title = models.CharField(max_length=255, verbose_name="标题")
     desc = models.CharField(max_length=1024, blank=True, verbose_name="摘要")
     content = models.TextField(verbose_name="正文", help_text="正文必须是MarkDown格式")
+    content_html = models.TextField(verbose_name="正文html代码", blank=True, editable=False)
     status = models.PositiveIntegerField(default=STATUS_NORMAL, choices=STATUS_ITEMS, verbose_name="状态")
+    is_md = models.BooleanField(default=False, verbose_name="markdown语法")
     category = models.ForeignKey(Category, verbose_name="分类", on_delete=models.CASCADE)
     tag = models.ManyToManyField(Tag, verbose_name="标签", help_text="按住ctrl可多选")
     owner = models.ForeignKey(User, verbose_name="作者", on_delete=models.CASCADE)
@@ -84,8 +87,6 @@ class Post(models.Model):
     # 统计访问量
     pv = models.PositiveIntegerField(default=1)
     uv = models.PositiveIntegerField(default=1)
-    content_html = models.TextField(verbose_name="正文html代码", blank=True, editable=False)
-    is_md = models.BooleanField(default=False, verbose_name="markdown语法")
 
     class Meta:
         verbose_name = verbose_name_plural = "文章"
@@ -118,13 +119,23 @@ class Post(models.Model):
         return post_list, category
 
     @classmethod
-    def latest_posts(cls):
-        return cls.objects.filter(status=cls.STATUS_NORMAL)
+    def latest_posts(cls, with_related=True):
+        queryset = cls.objects.filter(status=cls.STATUS_NORMAL)
+        if with_related:
+            queryset = queryset.select_related('owner', 'category')
+            queryset = queryset.prefetch_related('tag')
+        return queryset
 
     # 最热文章
     @classmethod
     def hot_posts(cls):
-        return cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv').only('id', 'title')
+        result = cache.get('hot_posts')
+        # print(result)
+        if not result:
+            result = cls.objects.filter(status=cls.STATUS_NORMAL).order_by('-pv').only('id', 'title')
+            cache.set('hot_posts', result, 10*60)
+        # print(result)
+        return result
 
     # sitemap，输出配置好的tags
     @cached_property

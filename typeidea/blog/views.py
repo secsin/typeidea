@@ -1,5 +1,7 @@
 from datetime import date
 
+# from silk.profiling.profiler import silk_profile
+
 from django.shortcuts import render
 from django.core.cache import cache
 from django.views.generic import DetailView, ListView
@@ -11,6 +13,7 @@ from config.models import SideBar
 
 
 class CommonViewMixin:
+    # @silk_profile(name='get_navs')
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context.update({
@@ -135,6 +138,7 @@ class AuthorView(IndexView):
         queryset = super().get_queryset()
         author_id = self.kwargs.get('owner_id')
         return queryset.filter(owner_id=author_id)
+
 
 # class PostListView(ListView):
 #     queryset = Post.latest_posts()

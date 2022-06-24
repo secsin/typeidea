@@ -22,6 +22,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.conf.urls import url, include
 from django.contrib.sitemaps import views as sitemap_views
+from django.views.decorators.cache import cache_page
 
 from blog.views import PostDetailView, IndexView, CategoryView, TagView, SearchView, AuthorView
 from blog.rss import LatestPostFeed
@@ -32,6 +33,7 @@ from config.apis import LinkViewSet
 from config.views import LinkListView
 from comment.views import CommentView
 from .autocomplete import CategoryAutocomplete, TagAutocomplete
+
 
 router = DefaultRouter()
 router.register(r'post', PostViewSet, base_name='api-post')
@@ -51,10 +53,19 @@ urlpatterns = [
     url(r'^author/(?P<owner_id>\d+)$', AuthorView.as_view(), name='author'),
     url(r'^comment/$', CommentView.as_view(), name='comment'),
     url(r'^rss|feed/', LatestPostFeed(), name='rss'),
-    url(r'^sitemap\.xml$', sitemap_views.sitemap, {'sitemaps': {'posts': PostSitemap}}),
+    url(r'^sitemap\.xml$', cache_page(60 * 20, key_prefix='sitemap_cache_')(sitemap_views.sitemap), {'sitemaps': {'posts': PostSitemap}}),
     url(r'^category-autocomplete/$', CategoryAutocomplete.as_view(), name='category-autocomplete'),
     url(r'^tag-autocomplete/$', TagAutocomplete.as_view(), name='tag-autocomplete'),
     url(r'^ckeditor/', include('ckeditor_uploader.urls')),
     url(r'^api/', include(router.urls)),
     url(r'^api/docs/', include_docs_urls(title='typeidea apis')),
+    url(r'^captcha/', include('captcha.urls')),
+    # url(r'^verify_captcha/', VerifyCaptcha.as_view(), name='verify_captcha'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns = [
+        url(r'__debug__/', include(debug_toolbar.urls)),
+        url(r'^silk/', include('silk.urls', namespace='silk')),
+    ] + urlpatterns

@@ -1,0 +1,15 @@
+Metadata-Version: 1.1
+Name: typeidea
+Version: 0.1
+Summary: Blog System base on Django
+Home-page: UNKNOWN
+Author: secsin
+Author-email: cjc6319@gmail.com
+License: MIT
+Description: UNKNOWN
+Platform: UNKNOWN
+Classifier: Development Status :: 3 - Alpha
+Classifier: Intended Audience :: Developers
+Classifier: Topic :: Blog :: Django Blog
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Programming Language :: Python :: 3.7
